@@ -1,46 +1,45 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:queritel_demo_app/src/api/items_api.dart';
 import 'package:queritel_demo_app/src/helpers/database_helper.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:queritel_demo_app/src/models/item.dart';
 
 class HomeController extends GetxController
 {
+  DatabaseHelper databaseHelper = DatabaseHelper();
+
+  List<Item> items = new List();
+  
   @override
   void onInit() {
     super.onInit();
 
-    DatabaseHelper databaseHelper = DatabaseHelper();
-
-    _fetchItems();
+    fetchItems();
   }
 
-  _fetchItems() async {
+  fetchItems() async {
     final response = await getItems();
 
     if(response.statusCode == 200) {
 
-      final responseBody = response.data;
+      print('response.statusCode: ' + response.statusCode.toString());
+
+      final responseBody = jsonDecode(response.data.toString());
+
+      print('responseBody item_list: ' + responseBody["item_list"].toString());
 
       List<dynamic> list = responseBody["item_list"] as List;
-      /*regions = list.map((result) => Region.fromJson(result)).toList();
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final communes = prefs.getStringList('comunas');
+      items = list.map((result) => Item.fromMapObject(result)).toList();
 
-      if(communes != null) {
-        for(int b=0; b<communes.length; b++) {
-          for(int c=0; c<regions.length; c++) {
-            for(int d=0; d<regions[c].communes.length; d++) {
-              if(communes[b] == regions[c].communes[d].id.toString()) {
-                regions[c].communes[d].value = true;
-              }
-            }
-          }
-        }
-      }*/
+      await databaseHelper.deleteAllItems();
+      items.forEach((item) {
+        databaseHelper.insertItem(item);
+      });
 
-      update(['regions']);
+      update(['items']);
     } else {
       Get.dialog(
           AlertDialog(
