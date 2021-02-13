@@ -1,4 +1,6 @@
 import 'package:queritel_demo_app/src/models/item.dart';
+import 'package:queritel_demo_app/src/models/order_items_table.dart';
+import 'package:queritel_demo_app/src/models/order_table.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:io';
@@ -9,17 +11,36 @@ class DatabaseHelper {
   static DatabaseHelper _databaseHelper;    // Singleton DatabaseHelper
   static Database _database;                // Singleton Database
 
+  //cart_table
   String cartTable = 'cart_table';
+  String cartTableColRefId = 'ref_id';
+  String cartTableColCategory = 'category';
+  String cartTableColBrand = 'brand';
+  String cartTableColTitle = 'title';
+  String cartTableColWeight = 'weight';
+  String cartTableColWeightLabel = 'weight_label';
+  String cartTableColPicUrl = 'pic_url';
+  String cartTableColLiderPrice = 'lider_price';
+  String cartTableColNewFileName = 'new_file_name';
 
-  String colRefId = 'ref_id';
-  String colCategory = 'category';
-  String colBrand = 'brand';
-  String colTitle = 'title';
-  String colWeight = 'weight';
-  String colWeightLabel = 'weight_label';
-  String colPicUrl = 'pic_url';
-  String colLiderPrice = 'lider_price';
-  String colNewFileName = 'new_file_name';
+  //order_table
+  String orderTable = 'order_table';
+  String orderTableColId = 'id';
+  String orderTableColPrice = 'price';
+  String orderTableColDate = 'date';
+
+  //order_items_table
+  String orderItemsTable = 'order_items_table';
+  String orderItemsTableColId = 'id';
+  String orderItemsTableColOrderId = 'order_id';
+  String orderItemsTableColItemName = 'item_name';
+  String orderItemsTableColItemPrice = 'item_price';
+  String orderItemsTableColItemCategory = 'item_category';
+  String orderItemsTableColItemQuantity = 'item_quantity';
+  String orderItemsTableColItemImgUrl = 'img_url';
+  String orderItemsTableColItemBrand = 'item_brand';
+  String orderItemsTableColItemWeight = 'weight';
+  String orderItemsTableColItemWeightLabel = 'weight_label';
 
   DatabaseHelper._createInstance(); // Named constructor to create instance of DatabaseHelper
 
@@ -45,23 +66,48 @@ class DatabaseHelper {
     String path = directory.path + 'queritel_demo_app.db';
 
     // Open/create the database at a given path
-    var queritelDatabase = await openDatabase(path, version: 1, onCreate: _createDb);
+    var queritelDatabase = await openDatabase(path, version: 1, onCreate: _createDbs);
     return queritelDatabase;
   }
 
-  void _createDb(Database db, int newVersion) async {
+  void _createDbs(Database db, int newVersion) async {
     await db.execute('CREATE TABLE '
         '$cartTable('
-        '$colRefId INTEGER PRIMARY KEY AUTOINCREMENT, '
-        '$colCategory TEXT, '
-        '$colBrand TEXT, '
-        '$colTitle TEXT, '
-        '$colWeight TEXT, '
-        '$colWeightLabel TEXT, '
-        '$colPicUrl TEXT, '
-        '$colLiderPrice TEXT, '
-        '$colNewFileName TEXT)'
+        '$cartTableColRefId INTEGER PRIMARY KEY AUTOINCREMENT, '
+        '$cartTableColCategory TEXT, '
+        '$cartTableColBrand TEXT, '
+        '$cartTableColTitle TEXT, '
+        '$cartTableColWeight TEXT, '
+        '$cartTableColWeightLabel TEXT, '
+        '$cartTableColPicUrl TEXT, '
+        '$cartTableColLiderPrice TEXT, '
+        '$cartTableColNewFileName TEXT)'
     );
+
+    await db.execute('CREATE TABLE '
+        '$orderTable('
+        '$orderTableColId INTEGER PRIMARY KEY AUTOINCREMENT, '
+        '$orderTableColPrice TEXT, '
+        '$orderTableColDate TEXT)'
+    );
+
+    await db.execute('CREATE TABLE '
+        '$orderItemsTable('
+        '$orderItemsTableColId INTEGER PRIMARY KEY AUTOINCREMENT, '
+        '$orderItemsTableColOrderId INTEGER, '
+        '$orderItemsTableColItemName TEXT, '
+        '$orderItemsTableColItemPrice TEXT, '
+        '$orderItemsTableColItemCategory TEXT, '
+        '$orderItemsTableColItemQuantity TEXT, '
+        '$orderItemsTableColItemImgUrl TEXT, '
+        '$orderItemsTableColItemBrand TEXT, '
+        '$orderItemsTableColItemWeight TEXT, '
+        '$orderItemsTableColItemWeightLabel TEXT)'
+    );
+
+    DateTime now = new DateTime.now();
+    OrderTable newOrderTable = OrderTable(null, "0", DateTime(now.year, now.month, now.day).toString());
+    createOrderTable(newOrderTable);
   }
 
   // Fetch Operation: Get all todo objects from database
@@ -71,8 +117,23 @@ class DatabaseHelper {
     //var result = await db.rawQuery('SELECT * FROM $todoTable order by $colTitle ASC');
     var result = await db.query(
         cartTable,
-        orderBy: '$colRefId ASC'
+        orderBy: '$cartTableColRefId ASC'
     );
+    return result;
+  }
+
+  Future<int> removeFromCart(int id) async {
+    var db = await this.database;
+    int result = await db.rawDelete('DELETE FROM $orderItemsTable WHERE $orderItemsTableColId = $id');
+    return result;
+  }
+
+  Future<int> addToCart(Item item) async {
+    final currentOrderTable = await getCurrentOrderTable();
+    OrderItemsTable newOrderItemsTable = OrderItemsTable(null, currentOrderTable.id, "0", item.category, item.brand, item.title, item.weight, item.weightLabel, item.picUrl, item.liderPrice);
+
+    Database db = await this.database;
+    var result = await db.insert(orderItemsTable, newOrderItemsTable.toMap());
     return result;
   }
 
@@ -81,6 +142,31 @@ class DatabaseHelper {
     Database db = await this.database;
     var result = await db.insert(cartTable, item.toMap());
     return result;
+  }
+
+  Future<int> createOrderTable(OrderTable newOrderTable) async {
+    Database db = await this.database;
+    var result = await db.insert(orderTable, newOrderTable.toMap());
+    return result;
+  }
+
+  Future<OrderTable> getCurrentOrderTable() async {
+    Database db = await this.database;
+
+    //var result = await db.rawQuery('SELECT * FROM $todoTable order by $colTitle ASC');
+    final result = await db.query(
+        orderTable,
+        orderBy: '$orderTableColDate ASC',
+        limit: 1
+    );
+
+    print('getCurrentOrderTable result: ' + result.toString());
+
+    if(result.length > 0) {
+      return OrderTable.fromMapObject(result[0]);
+    }
+
+    return null;
   }
 
   /*// Insert Operation: Insert a item object to database
@@ -135,15 +221,26 @@ class DatabaseHelper {
     return itemList;
   }
 
-  /*Future<List<Item>> getItemList() async {
-    var todoMapList = await getTodoMapList(); // Get 'Map List' from database
-    int count = todoMapList.length;         // Count the number of map entries in db table
+  Future<List<Map<String, dynamic>>> getOrderItemMapList() async {
+    Database db = await this.database;
 
-    List<Todo> todoList = List<Todo>();
-    // For loop to create a 'todo List' from a 'Map List'
-    for (int i = 0; i < count; i++) {
-      todoList.add(Todo.fromMapObject(todoMapList[i]));
+    //var result = await db.rawQuery('SELECT * FROM $todoTable order by $colTitle ASC');
+    var result = await db.query(
+        orderItemsTable,
+        orderBy: '$orderItemsTableColId ASC'
+    );
+    return result;
+  }
+
+  Future<List<OrderItemsTable>> getOrderItemsList() async {
+
+    var orderItemMapList = await getOrderItemMapList(); // Get 'Map List' from database
+
+    List<OrderItemsTable> orderItemsList = List<OrderItemsTable>();
+    for (int i = 0; i < orderItemMapList.length; i++) {
+      orderItemsList.add(OrderItemsTable.fromMapObject(orderItemMapList[i]));
     }
-    return todoList;
-  }*/
+
+    return orderItemsList;
+  }
 }

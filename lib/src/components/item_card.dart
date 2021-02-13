@@ -5,18 +5,20 @@ import 'package:queritel_demo_app/src/util/constants.dart';
 class ItemCard extends StatelessWidget {
 
   final Item item;
-  final Function press;
+  final Function pressFunction;
+  final Function addToCartFunction;
 
   const ItemCard({
     Key key,
     this.item,
-    this.press,
+    this.pressFunction,
+    this.addToCartFunction,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: press,
+      onTap: pressFunction,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.orange,
@@ -26,7 +28,7 @@ class ItemCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(
+            /*Expanded(
               child: Container(
                 padding: EdgeInsets.all(defaultPadding),
                 margin: EdgeInsets.all(6),
@@ -60,7 +62,7 @@ class ItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
+            ),*/
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -88,7 +90,7 @@ class ItemCard extends StatelessWidget {
                   color: Colors.white,
                   textColor: Colors.red,
                   padding: EdgeInsets.all(2),
-                  onPressed: () {},
+                  onPressed: addToCartFunction,
                   child: Text(
                     "Add to Cart".toUpperCase(),
                     style: TextStyle(

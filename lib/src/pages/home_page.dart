@@ -41,12 +41,16 @@ class HomePage extends StatelessWidget {
                   ),
                   itemBuilder: (context, index) => ItemCard(
                     item: _.items[index],
-                    press: () => null,
+                    pressFunction: () => null,
+                    addToCartFunction: () => _.databaseHelper.addToCart(_.items[index]),
                   )),
             ),
           ),
         floatingActionButton: FloatingActionButton(
-          onPressed: _.fetchItems,
+          onPressed: () {
+            print('FloatingActionButton');
+
+          },
         ),
       ),
     );

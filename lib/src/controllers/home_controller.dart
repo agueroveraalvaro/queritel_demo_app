@@ -16,10 +16,10 @@ class HomeController extends GetxController
   void onInit() {
     super.onInit();
 
-    fetchItems();
+    _fetchItems();
   }
 
-  fetchItems() async {
+  _fetchItems() async {
     final response = await getItems();
 
     if(response.statusCode == 200) {
