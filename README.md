@@ -1,8 +1,30 @@
 # queritel_demo_app
 
-A new Flutter application.
+DEMO App for Queritel.
 
 ## Getting Started
+
+You can see a demonstration of the app in the following link: 
+https://youtu.be/A6QGwIbjABE
+
+The libraries used in this app are:
+
+get: ^3.24.0 
+#GetX is an extra-light and powerful solution for Flutter. It combines high performance state management, intelligent dependency injection, and route management in a quick and practical way.
+
+sqflite: ^1.3.2+3 
+#SQLite plugin for Flutter. Supports iOS, Android and MacOS.
+
+dio: ^3.0.10 
+#A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc.
+  
+path_provider: ^1.6.27 
+#A Flutter plugin for finding commonly used locations on the filesystem. Supports iOS, Android, Linux and MacOS.
+  
+badges: ^1.1.6 
+#Badges for Flutter
+
+----------------------------------------------------------
 
 This project is a starting point for a Flutter application.
 
