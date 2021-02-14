@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:queritel_demo_app/src/helpers/database_helper.dart';
 import 'package:queritel_demo_app/src/models/order_items_table.dart';
@@ -23,10 +21,14 @@ class CartController extends GetxController
   }
 
   removeOrderItem(int id) async {
-    print('removeOrderItem: ' + id.toString());
     final result = await databaseHelper.removeFromCart(id);
-    if(result != null)
-      update(['orderItems']);
+    if(result != null) {
+      for(int b=0; b<orderItems.length; b++) {
+        if(orderItems[b].id == id.toString())
+          orderItems.removeAt(b);
+      }
+    }
+    update(['orderItems']);
   }
 
   @override

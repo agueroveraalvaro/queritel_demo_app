@@ -11,12 +11,25 @@ class HomeController extends GetxController
   DatabaseHelper databaseHelper = DatabaseHelper();
 
   List<Item> items = new List();
+
+  int orderItemsCount = 0;
   
   @override
   void onInit() {
     super.onInit();
 
     _fetchItems();
+  }
+
+  addToCart(Item item) async {
+    final newItem = await databaseHelper.addToCart(item);
+    if(newItem != null)
+      updateOrderItemsCount();
+  }
+
+  updateOrderItemsCount() async {
+    orderItemsCount = await databaseHelper.getOrderItemsCount();
+    update(['orderItemsCount']);
   }
 
   _fetchItems() async {

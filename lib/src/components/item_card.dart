@@ -28,7 +28,7 @@ class ItemCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            /*Expanded(
+            Expanded(
               child: Container(
                 padding: EdgeInsets.all(defaultPadding),
                 margin: EdgeInsets.all(6),
@@ -62,7 +62,7 @@ class ItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-            ),*/
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

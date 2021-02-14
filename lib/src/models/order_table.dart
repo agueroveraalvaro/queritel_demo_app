@@ -9,9 +9,7 @@ class OrderTable {
 
   //GET
   String get id => _id;
-
   String get price => _price;
-
   String get date => _date;
 
   //SET
